@@ -676,7 +676,10 @@ function v4aEdits(lines: string[], strict: boolean): Edit[] {
           chunks.push(cur);
           continue;
         }
-        if (cl === '*** End of File') {
+        // `*** End of File` ends a chunk. It is matched with surrounding whitespace
+        // removed, as the Begin/End Patch lines are; a body line starting with a
+        // space is a context line instead, never this marker.
+        if (cl.trim() === '*** End of File' && !cl.startsWith(' ') && !cl.startsWith('\t')) {
           if (cur === null) throw new Exit2(`error: parse ${absLine}`);
           cur.eof = true;
           cur = null;
